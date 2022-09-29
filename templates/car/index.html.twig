@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Car index{% endblock %}
+
+{% block body %}
+    <a href="{{ path('app_index') }}">back</a>
+    <h1>Car index</h1>
+
+    <a href="{{ path('app_car_fuel_index') }}">fuels</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>HorsePower</th>
+                <th>LicensePlate</th>
+                <th>Year</th>
+                <th>Km</th>
+                <th>Image</th>
+                <th>Fuel</th>
+                <th>AverageConsumption</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for car in cars %}
+            <tr>
+                <td>{{ car.id }}</td>
+                <td>{{ car.brand }}</td>
+                <td>{{ car.model }}</td>
+                <td>{{ car.horsePower }}</td>
+                <td>{{ car.licensePlate }}</td>
+                <td>{{ car.year }}</td>
+                <td>{{ car.km }}</td>
+                <td>{{ car.image }}</td>
+                <td>
+                    {% for fuel in car.fuelType %}
+                        {{ fuel.name }}<br/>
+                    {% endfor %}
+                </td>
+{#                <td>{{ car.fuelType }}</td>#}
+                <td>{{ car.averageConsumption }}</td>
+                <td>
+                    <a href="{{ path('app_car_show', {'id': car.id}) }}">show</a>
+                    <a href="{{ path('app_car_edit', {'id': car.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="10">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_car_new') }}">Create new</a>
+{% endblock %}

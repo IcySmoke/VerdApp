@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Entity\Car;
+
+use App\Repository\Car\FuelRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: FuelRepository::class)]
+class Fuel
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
+
+    #[ORM\ManyToMany(targetEntity: Car::class, mappedBy: 'fuelType')]
+    private Collection $cars;
+
+    public function __construct()
+    {
+        $this->cars = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Car>
+     */
+    public function getcars(): Collection
+    {
+        return $this->cars;
+    }
+
+    public function addCar(Car $car): self
+    {
+        if (!$this->cars->contains($car)) {
+            $this->cars->add($car);
+            $car->addFuelType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCar(Car $car): self
+    {
+        if ($this->car->removeElement($car)) {
+            $car->removeFuelType($this);
+        }
+
+        return $this;
+    }
+}
