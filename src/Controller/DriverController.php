@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Driver;
+use App\Form\DriverType;
+use App\Repository\DriverRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+#[Route('/driver')]
+class DriverController extends AbstractController
+{
+    #[Route('/', name: 'app_driver_index', methods: ['GET'])]
+    public function index(DriverRepository $driverRepository): Response
+    {
+        return $this->render('driver/index.html.twig', [
+            'drivers' => $driverRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/new', name: 'app_driver_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, DriverRepository $driverRepository): Response
+    {
+        $driver = new Driver();
+        $form = $this->createForm(DriverType::class, $driver);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $driverRepository->save($driver, true);
+
+            return $this->redirectToRoute('app_driver_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('driver/new.html.twig', [
+            'driver' => $driver,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_driver_show', methods: ['GET'])]
+    public function show(Driver $driver): Response
+    {
+        return $this->render('driver/show.html.twig', [
+            'driver' => $driver,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_driver_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Driver $driver, DriverRepository $driverRepository): Response
+    {
+        $form = $this->createForm(DriverType::class, $driver);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $driverRepository->save($driver, true);
+
+            return $this->redirectToRoute('app_driver_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('driver/edit.html.twig', [
+            'driver' => $driver,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_driver_delete', methods: ['POST'])]
+    public function delete(Request $request, Driver $driver, DriverRepository $driverRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$driver->getId(), $request->request->get('_token'))) {
+            $driverRepository->remove($driver, true);
+        }
+
+        return $this->redirectToRoute('app_driver_index', [], Response::HTTP_SEE_OTHER);
+    }
+}
