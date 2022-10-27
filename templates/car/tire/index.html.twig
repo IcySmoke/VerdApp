@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tire index{% endblock %}
+
+{% block body %}
+    <h1>Tire index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Brand</th>
+                <th>Type</th>
+                <th>Width</th>
+                <th>AspectRatio</th>
+                <th>Rim</th>
+                <th>LoadIndex</th>
+                <th>SpeedRating</th>
+                <th>DOT</th>
+                <th>count</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for tire in tires %}
+            <tr>
+                <td>{{ tire.brand }}</td>
+                <td>{{ tire.type }}</td>
+                <td>{{ tire.width }}</td>
+                <td>{{ tire.aspectRatio }}</td>
+                <td>{{ tire.rim }}</td>
+                <td>{{ tire.loadIndex }}</td>
+                <td>{{ tire.speedRating }}</td>
+                <td>{{ tire.dot }}</td>
+                <td>{{ tire.count }}</td>
+                <td>
+                    <a href="{{ path('app_car_tire_show', {'groupId': tire.groupId}) }}">show</a>
+{#                    <a href="{{ path('app_car_tire_edit', {'id': tire.id}) }}">edit</a>#}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="12">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_car_tire_new') }}">Create new</a>
+{% endblock %}
