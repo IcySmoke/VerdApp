@@ -14,7 +14,7 @@ class ApplicationController extends AbstractController
     {
         return $this->render('application/index.html.twig', [
             'controller_name' => 'ApplicationController',
-            'user' => $user->getFullName()
+            'user' => $user
         ]);
     }
 }

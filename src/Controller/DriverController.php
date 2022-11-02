@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Driver;
 use App\Form\DriverType;
 use App\Repository\DriverRepository;
+use App\Service\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,13 +23,20 @@ class DriverController extends AbstractController
     }
 
     #[Route('/new', name: 'app_driver_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, DriverRepository $driverRepository): Response
+    public function new(Request $request, DriverRepository $driverRepository, FileUploader $fileUploader): Response
     {
         $driver = new Driver();
         $form = $this->createForm(DriverType::class, $driver);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $image = $form->get('image')->getData();
+
+            if ($image) {
+                $driver->setImage($fileUploader->upload($image, $this->getParameter('driver_image_directory')));
+            }
+
             $driverRepository->save($driver, true);
 
             return $this->redirectToRoute('app_driver_index', [], Response::HTTP_SEE_OTHER);
@@ -49,12 +57,21 @@ class DriverController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_driver_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Driver $driver, DriverRepository $driverRepository): Response
+    public function edit(Request $request, Driver $driver, DriverRepository $driverRepository, FileUploader $fileUploader): Response
     {
         $form = $this->createForm(DriverType::class, $driver);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $image = $form->get('image')->getData();
+
+            if ($image) {
+                $oldImage = $this->getParameter('driver_image_directory') . '/' . $driver->getImage();
+                $driver->setImage($fileUploader->upload($image, $this->getParameter('driver_image_directory')));
+                unlink($oldImage);
+            }
+
             $driverRepository->save($driver, true);
 
             return $this->redirectToRoute('app_driver_index', [], Response::HTTP_SEE_OTHER);

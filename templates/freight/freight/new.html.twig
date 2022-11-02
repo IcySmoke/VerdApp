@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Freight{% endblock %}
+
+{% block body %}
+    <h1>Create new Freight</h1>
+
+    {{ include('freight/freight/_form.html.twig') }}
+
+    <a href="{{ path('app_freight_freight_index') }}">back to list</a>
+{% endblock %}

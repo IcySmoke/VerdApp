@@ -11,10 +11,14 @@
     <div class="example-wrapper">
         <h1>VerdApp</h1>
         {% if user is not null %}
-            <p>Hello <b>{{ user }}</b>!</p>
+            <p>Hello <b>{{ user.getFullName }}</b>!</p>
         {% endif %}
     </div>
     <a href="{{ path('app_car_index') }}">cars</a>
     <a href="{{ path('app_driver_index') }}">drivers</a>
     <a href="{{ path('app_car_tire_index') }}">tires</a>
+    <a href="{{ path('app_freight_freight_index') }}">freights</a>
+    {% if user.getDriver is not null %}
+        <a href="#">drivers only (and admins maybe)</a>
+    {% endif %}
 {% endblock %}

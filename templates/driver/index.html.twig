@@ -23,7 +23,9 @@
             <tr>
                 <td>{{ driver.id }}</td>
                 <td>{{ driver.user.getFullName }}</td>
-                <td>{{ driver.image }}</td>
+                <td>
+                    <img src="public/uploads/drivers/{{ driver.image }}" alt="">
+                </td>
                 <td>{{ driver.birthday ? driver.birthday|date('Y-m-d') : '' }}</td>
                 <td>{{ driver.distanceDriven }}</td>
                 <td>{{ driver.employeeSince ? driver.employeeSince|date('Y-m-d') : '' }}</td>

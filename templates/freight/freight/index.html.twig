@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Freight index{% endblock %}
+
+{% block body %}
+    <a href="{{ path('app_index') }}">back</a>
+    <h1>Freight index</h1>
+
+    <a href="{{ path('app_freight_location_index') }}">locations</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>StartDate</th>
+                <th>DestinationDate</th>
+                <th>Status</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for freight in freights %}
+            <tr>
+                <td>{{ freight.id }}</td>
+                <td>{{ freight.startDate ? freight.startDate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ freight.destinationDate ? freight.destinationDate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ freight.status }}</td>
+                <td>
+                    <a href="{{ path('app_freight_freight_show', {'id': freight.id}) }}">show</a>
+                    <a href="{{ path('app_freight_freight_edit', {'id': freight.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_freight_freight_new') }}">Create new</a>
+{% endblock %}

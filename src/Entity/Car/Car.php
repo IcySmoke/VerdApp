@@ -2,6 +2,7 @@
 
 namespace App\Entity\Car;
 
+use App\Entity\Freight\Freight;
 use App\Repository\Car\CarRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -42,9 +43,13 @@ class Car
     #[ORM\Column(nullable: true)]
     private ?float $averageConsumption = null;
 
+    #[ORM\OneToMany(mappedBy: 'car', targetEntity: Freight::class)]
+    private Collection $freights;
+
     public function __construct()
     {
         $this->fuelType = new ArrayCollection();
+        $this->freights = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -168,6 +173,36 @@ class Car
     public function setAverageConsumption(?float $averageConsumption): self
     {
         $this->averageConsumption = $averageConsumption;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Freight>
+     */
+    public function getFreights(): Collection
+    {
+        return $this->freights;
+    }
+
+    public function addFreight(Freight $freight): self
+    {
+        if (!$this->freights->contains($freight)) {
+            $this->freights->add($freight);
+            $freight->setCar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFreight(Freight $freight): self
+    {
+        if ($this->freights->removeElement($freight)) {
+            // set the owning side to null (unless already changed)
+            if ($freight->getCar() === $this) {
+                $freight->setCar(null);
+            }
+        }
 
         return $this;
     }

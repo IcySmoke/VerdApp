@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use App\Entity\Freight\Freight;
 use App\Repository\DriverRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -29,6 +32,14 @@ class Driver
     #[ORM\OneToOne(inversedBy: 'driver', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
+
+    #[ORM\OneToMany(mappedBy: 'driver', targetEntity: Freight::class)]
+    private Collection $freights;
+
+    public function __construct()
+    {
+        $this->freights = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -91,6 +102,36 @@ class Driver
     public function setUser(User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Freight>
+     */
+    public function getFreights(): Collection
+    {
+        return $this->freights;
+    }
+
+    public function addFreight(Freight $freight): self
+    {
+        if (!$this->freights->contains($freight)) {
+            $this->freights->add($freight);
+            $freight->setDriver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFreight(Freight $freight): self
+    {
+        if ($this->freights->removeElement($freight)) {
+            // set the owning side to null (unless already changed)
+            if ($freight->getDriver() === $this) {
+                $freight->setDriver(null);
+            }
+        }
 
         return $this;
     }

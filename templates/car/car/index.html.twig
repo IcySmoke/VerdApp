@@ -34,13 +34,14 @@
                 <td>{{ car.licensePlate }}</td>
                 <td>{{ car.year }}</td>
                 <td>{{ car.km }}</td>
-                <td>{{ car.image }}</td>
+                <td>
+                    <img src="public/uploads/cars/{{ car.image }}" alt="">
+                </td>
                 <td>
                     {% for fuel in car.fuelType %}
                         {{ fuel.name }}<br/>
                     {% endfor %}
                 </td>
-{#                <td>{{ car.fuelType }}</td>#}
                 <td>{{ car.averageConsumption }}</td>
                 <td>
                     <a href="{{ path('app_car_show', {'id': car.id}) }}">show</a>
