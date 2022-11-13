@@ -46,10 +46,14 @@ class Car
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: Freight::class)]
     private Collection $freights;
 
+    #[ORM\OneToMany(mappedBy: 'car', targetEntity: Tire::class)]
+    private Collection $tires;
+
     public function __construct()
     {
         $this->fuelType = new ArrayCollection();
         $this->freights = new ArrayCollection();
+        $this->tires = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -201,6 +205,36 @@ class Car
             // set the owning side to null (unless already changed)
             if ($freight->getCar() === $this) {
                 $freight->setCar(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tire>
+     */
+    public function getTires(): Collection
+    {
+        return $this->tires;
+    }
+
+    public function addTire(Tire $tire): self
+    {
+        if (!$this->tires->contains($tire)) {
+            $this->tires->add($tire);
+            $tire->setCar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTire(Tire $tire): self
+    {
+        if ($this->tires->removeElement($tire)) {
+            // set the owning side to null (unless already changed)
+            if ($tire->getCar() === $this) {
+                $tire->setCar(null);
             }
         }
 

@@ -17,6 +17,7 @@
                 <th>SpeedRating</th>
                 <th>DOT</th>
                 <th>Distance</th>
+                <th>Car</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -33,7 +34,19 @@
                 <td>{{ tire.dot }}</td>
                 <td>{{ tire.distance }}</td>
                 <td>
+                    {% if tire.car is not null %}
+                        {{ tire.car.licensePlate }}
+                    {% else %}
+                        out of use
+                    {% endif %}
+                </td>
+                <td>
                     <a href="{{ path('app_car_tire_edit', {'id': tire.id}) }}">edit</a>
+                    {% if tire.car is not null %}
+                        <a href="{{ path('app_car_tire_remove_car', {'id': tire.id}) }}">remove</a>
+                    {% else %}
+                        <a href="{{ path('app_car_tire_add_to_car', {'id': tire.id}) }}">add to car</a>
+                    {% endif %}
                     {{ include('car/tire/_delete_form.html.twig') }}
                 </td>
             </tr>

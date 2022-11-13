@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit car Tires{% endblock %}
+
+{% block body %}
+    <a href="{{ path('app_car_index') }}">back</a>
+    <h1>Edit Car Tires</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Brand</th>
+            <th>Type</th>
+            <th>Width</th>
+            <th>AspectRatio</th>
+            <th>Rim</th>
+            <th>LoadIndex</th>
+            <th>SpeedRating</th>
+            <th>DOT</th>
+            <th>Distance</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for tire in car.tires %}
+            <tr>
+                <td>{{ tire.brand }}</td>
+                <td>{{ tire.type }}</td>
+                <td>{{ tire.width }}</td>
+                <td>{{ tire.aspectRatio }}</td>
+                <td>{{ tire.rim }}</td>
+                <td>{{ tire.loadIndex }}</td>
+                <td>{{ tire.speedRating }}</td>
+                <td>{{ tire.dot }}</td>
+                <td>{{ tire.distance }}</td>
+                <td>
+                    <a href="{{ path('app_car_tire_remove_car', {'id': tire.id}) }}">remove</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="12">0 tire found...</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

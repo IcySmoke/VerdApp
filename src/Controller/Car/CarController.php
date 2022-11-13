@@ -84,6 +84,14 @@ class CarController extends AbstractController
         ]);
     }
 
+    #[Route('/car/{id}/tires', name: 'app_car_edit_tires', methods: ['GET', 'POST'])]
+    public function manageTires(Request $request, Car $car): Response
+    {
+        return $this->render('car/car/edit_tire.html.twig', [
+            'car' => $car
+        ]);
+    }
+
     #[Route('/car/{id}', name: 'app_car_delete', methods: ['POST'])]
     public function delete(Request $request, Car $car, EntityManagerInterface $entityManager): Response
     {

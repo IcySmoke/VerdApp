@@ -44,6 +44,9 @@ class Tire
     #[ORM\Column]
     private ?int $dot = null;
 
+    #[ORM\ManyToOne(inversedBy: 'tires')]
+    private ?Car $car = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -165,6 +168,18 @@ class Tire
     public function setDot(int $dot): self
     {
         $this->dot = $dot;
+
+        return $this;
+    }
+
+    public function getCar(): ?Car
+    {
+        return $this->car;
+    }
+
+    public function setCar(?Car $car): self
+    {
+        $this->car = $car;
 
         return $this;
     }

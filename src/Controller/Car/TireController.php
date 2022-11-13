@@ -4,6 +4,7 @@ namespace App\Controller\Car;
 
 use App\Entity\Car\Tire;
 use App\Form\Car\TireType;
+use App\Repository\Car\CarRepository;
 use App\Repository\Car\TireRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Form;
@@ -63,13 +64,32 @@ class TireController extends AbstractController
     public function show(string $groupId, TireRepository $tireRepository): Response
     {
         $tires = $tireRepository->createQueryBuilder('t')
-            ->addSelect('t.id', 't.brand', 't.type', 't.width', 't.aspectRatio', 't.rim', 't.loadIndex', 't.speedRating', 't.dot', 't.distance')
             ->where('t.groupId = :groupId')
             ->setParameter(':groupId', $groupId)
-            ->getQuery()->getArrayResult();
-//        dd($tires);
+            ->getQuery()->getResult();
+
         return $this->render('car/tire/show.html.twig', [
             'tires' => $tires,
+        ]);
+    }
+
+    #[Route('/{id}/addtocar/{carId}', name: 'app_car_tire_add_to_car', defaults:['carId' => 0], methods: ['GET', 'POST'])]
+    public function addToCar (Request $request, Tire $tire, TireRepository $tireRepository, CarRepository $carRepository)
+    {
+        $carId = $request->get('carId');
+
+        if ($carId !== 0) {
+            $tire->setCar($carRepository->findOneById($carId));
+            $tireRepository->save($tire, true);
+            return $this->redirectToRoute('app_car_tire_show', ['groupId' => $tire->getGroupId()]);
+        }
+
+        $cars = $carRepository->findAll();
+//        dd($cars, $tire);
+
+        return $this->render('car/tire/add_to_car.html.twig', [
+            'cars' => $cars,
+            'tire' => $tire
         ]);
     }
 
@@ -89,6 +109,16 @@ class TireController extends AbstractController
             'tire' => $tire,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}/remove', name: 'app_car_tire_remove_car', methods: ['GET'])]
+    public function removeCar(Request $request, Tire $tire, TireRepository $tireRepository): Response
+    {
+        $carId = $tire->getCar()->getId();
+        $tire->setCar(null);
+        $tireRepository->save($tire, true);
+
+        return $this->redirectToRoute('app_car_edit_tires', ['id' => $carId], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}', name: 'app_car_tire_delete', methods: ['POST'])]

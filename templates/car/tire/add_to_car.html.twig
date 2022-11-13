@@ -6,23 +6,21 @@
     <a href="{{ path('app_index') }}">back</a>
     <h1>Car index</h1>
 
-    <a href="{{ path('app_car_fuel_index') }}">fuels</a>
-
     <table class="table">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>HorsePower</th>
-                <th>LicensePlate</th>
-                <th>Year</th>
-                <th>Km</th>
-                <th>Image</th>
-                <th>Fuel</th>
-                <th>AverageConsumption</th>
-                <th>actions</th>
-            </tr>
+        <tr>
+            <th>Id</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>HorsePower</th>
+            <th>LicensePlate</th>
+            <th>Year</th>
+            <th>Km</th>
+            <th>Image</th>
+            <th>Fuel</th>
+            <th>AverageConsumption</th>
+            <th>action</th>
+        </tr>
         </thead>
         <tbody>
         {% for car in cars %}
@@ -44,9 +42,7 @@
                 </td>
                 <td>{{ car.averageConsumption }}</td>
                 <td>
-                    <a href="{{ path('app_car_show', {'id': car.id}) }}">show</a>
-                    <a href="{{ path('app_car_edit', {'id': car.id}) }}">edit</a>
-                    <a href="{{ path('app_car_edit_tires', {'id': car.id}) }}">tires</a>
+                    <a href="{{ path('app_car_tire_add_to_car', {'id': tire.id, 'carId': car.id}) }}">select</a>
                 </td>
             </tr>
         {% else %}
