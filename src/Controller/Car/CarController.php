@@ -6,6 +6,7 @@ use App\Entity\Car\Car;
 use App\Form\Car\CarType;
 use App\Repository\Car\CarRepository;
 use App\Service\FileUploader;
+use App\Service\ImageOptimizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +24,7 @@ class CarController extends AbstractController
     }
 
     #[Route('/car/new', name: 'app_car_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader, ImageOptimizer $imageOptimizer): Response
     {
         $car = new Car();
         $form = $this->createForm(CarType::class, $car);
@@ -34,7 +35,9 @@ class CarController extends AbstractController
             $image = $form->get('image')->getData();
 
             if ($image) {
-                $car->setImage($fileUploader->upload($image, $this->getParameter('car_image_directory')));
+                $image = $fileUploader->upload($image, $this->getParameter('car_image_directory'));
+                $imageOptimizer->resize('uploads/cars/'.$image, 480, 270);
+                $car->setImage($image);
             }
 
             $entityManager->persist($car);
@@ -58,7 +61,7 @@ class CarController extends AbstractController
     }
 
     #[Route('/car/{id}/edit', name: 'app_car_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Car $car, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
+    public function edit(Request $request, Car $car, EntityManagerInterface $entityManager, FileUploader $fileUploader, ImageOptimizer $imageOptimizer): Response
     {
         $form = $this->createForm(CarType::class, $car);
         $form->handleRequest($request);
@@ -69,7 +72,9 @@ class CarController extends AbstractController
 
             if ($image) {
                 $oldImage = $this->getParameter('car_image_directory') . '/' . $car->getImage();
-                $car->setImage($fileUploader->upload($image, $this->getParameter('car_image_directory')));
+                $newImage = $fileUploader->upload($image, $this->getParameter('car_image_directory'));
+                $imageOptimizer->resize('uploads/cars/'.$newImage, 480, 270);
+                $car->setImage($newImage);
                 unlink($oldImage);
             }
 

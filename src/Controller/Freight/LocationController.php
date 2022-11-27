@@ -10,10 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/location')]
 class LocationController extends AbstractController
 {
-    #[Route('/', name: 'app_freight_location_index', methods: ['GET'])]
+    #[Route('/location', name: 'app_freight_location_index', methods: ['GET'])]
     public function index(LocationRepository $locationRepository): Response
     {
         return $this->render('freight/location/index.html.twig', [
@@ -21,7 +20,7 @@ class LocationController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_freight_location_new', methods: ['GET', 'POST'])]
+    #[Route('/location/new', name: 'app_freight_location_new', methods: ['GET', 'POST'])]
     public function new(Request $request, LocationRepository $locationRepository): Response
     {
         $location = new Location();
@@ -46,7 +45,7 @@ class LocationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_freight_location_show', methods: ['GET'])]
+    #[Route('/location/{id}', name: 'app_freight_location_show', methods: ['GET'])]
     public function show(Location $location): Response
     {
         return $this->render('freight/location/show.html.twig', [
@@ -54,7 +53,7 @@ class LocationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_freight_location_edit', methods: ['GET', 'POST'])]
+    #[Route('/location/{id}/edit', name: 'app_freight_location_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Location $location, LocationRepository $locationRepository): Response
     {
         $form = $this->createForm(LocationType::class, $location);
@@ -72,7 +71,7 @@ class LocationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_freight_location_delete', methods: ['POST'])]
+    #[Route('/location/{id}', name: 'app_freight_location_delete', methods: ['POST'])]
     public function delete(Request $request, Location $location, LocationRepository $locationRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$location->getId(), $request->request->get('_token'))) {

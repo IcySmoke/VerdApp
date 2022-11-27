@@ -41,6 +41,9 @@ class Freight
     #[ORM\Column]
     private ?int $status = null;
 
+    #[ORM\Column]
+    private ?int $distance = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -126,6 +129,18 @@ class Freight
     public function setStatus(int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDistance(): ?int
+    {
+        return $this->distance;
+    }
+
+    public function setDistance(int $distance): self
+    {
+        $this->distance = $distance;
 
         return $this;
     }

@@ -13,10 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/tire')]
 class TireController extends AbstractController
 {
-    #[Route('/', name: 'app_car_tire_index', methods: ['GET'])]
+    #[Route('/tire', name: 'app_car_tire_index', methods: ['GET'])]
     public function index(TireRepository $tireRepository): Response
     {
         $tires = $tireRepository->createQueryBuilder('t')
@@ -29,7 +28,7 @@ class TireController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_car_tire_new', methods: ['GET', 'POST'])]
+    #[Route('/tire/new', name: 'app_car_tire_new', methods: ['GET', 'POST'])]
     public function new(Request $request, TireRepository $tireRepository): Response
     {
         $form = $this->createForm(TireType::class);
@@ -60,7 +59,7 @@ class TireController extends AbstractController
         ]);
     }
 
-    #[Route('/{groupId}', name: 'app_car_tire_show', methods: ['GET'])]
+    #[Route('/tire/{groupId}', name: 'app_car_tire_show', methods: ['GET'])]
     public function show(string $groupId, TireRepository $tireRepository): Response
     {
         $tires = $tireRepository->createQueryBuilder('t')
@@ -73,7 +72,7 @@ class TireController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/addtocar/{carId}', name: 'app_car_tire_add_to_car', defaults:['carId' => 0], methods: ['GET', 'POST'])]
+    #[Route('/tire/{id}/addtocar/{carId}', name: 'app_car_tire_add_to_car', defaults:['carId' => 0], methods: ['GET', 'POST'])]
     public function addToCar (Request $request, Tire $tire, TireRepository $tireRepository, CarRepository $carRepository)
     {
         $carId = $request->get('carId');
@@ -93,7 +92,7 @@ class TireController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_car_tire_edit', methods: ['GET', 'POST'])]
+    #[Route('/tire/{id}/edit', name: 'app_car_tire_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Tire $tire, TireRepository $tireRepository): Response
     {
         $form = $this->createForm(TireType::class, $tire);
@@ -111,7 +110,7 @@ class TireController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/remove', name: 'app_car_tire_remove_car', methods: ['GET'])]
+    #[Route('/tire/{id}/remove', name: 'app_car_tire_remove_car', methods: ['GET'])]
     public function removeCar(Request $request, Tire $tire, TireRepository $tireRepository): Response
     {
         $carId = $tire->getCar()->getId();
@@ -121,7 +120,7 @@ class TireController extends AbstractController
         return $this->redirectToRoute('app_car_edit_tires', ['id' => $carId], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}', name: 'app_car_tire_delete', methods: ['POST'])]
+    #[Route('/tire/{id}', name: 'app_car_tire_delete', methods: ['POST'])]
     public function delete(Request $request, Tire $tire, TireRepository $tireRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$tire->getId(), $request->request->get('_token'))) {

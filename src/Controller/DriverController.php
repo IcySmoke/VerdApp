@@ -11,10 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/driver')]
 class DriverController extends AbstractController
 {
-    #[Route('/', name: 'app_driver_index', methods: ['GET'])]
+    #[Route('/driver', name: 'app_driver_index', methods: ['GET'])]
     public function index(DriverRepository $driverRepository): Response
     {
         return $this->render('driver/index.html.twig', [
@@ -22,7 +21,7 @@ class DriverController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_driver_new', methods: ['GET', 'POST'])]
+    #[Route('/driver/new', name: 'app_driver_new', methods: ['GET', 'POST'])]
     public function new(Request $request, DriverRepository $driverRepository, FileUploader $fileUploader): Response
     {
         $driver = new Driver();
@@ -48,7 +47,7 @@ class DriverController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_driver_show', methods: ['GET'])]
+    #[Route('/driver/{id}', name: 'app_driver_show', methods: ['GET'])]
     public function show(Driver $driver): Response
     {
         return $this->render('driver/show.html.twig', [
@@ -56,7 +55,7 @@ class DriverController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_driver_edit', methods: ['GET', 'POST'])]
+    #[Route('/driver/{id}/edit', name: 'app_driver_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Driver $driver, DriverRepository $driverRepository, FileUploader $fileUploader): Response
     {
         $form = $this->createForm(DriverType::class, $driver);
@@ -69,7 +68,10 @@ class DriverController extends AbstractController
             if ($image) {
                 $oldImage = $this->getParameter('driver_image_directory') . '/' . $driver->getImage();
                 $driver->setImage($fileUploader->upload($image, $this->getParameter('driver_image_directory')));
-                unlink($oldImage);
+
+                if (!is_dir($oldImage)) {
+                    unlink($oldImage);
+                }
             }
 
             $driverRepository->save($driver, true);
@@ -83,7 +85,7 @@ class DriverController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_driver_delete', methods: ['POST'])]
+    #[Route('/driver/{id}', name: 'app_driver_delete', methods: ['POST'])]
     public function delete(Request $request, Driver $driver, DriverRepository $driverRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$driver->getId(), $request->request->get('_token'))) {

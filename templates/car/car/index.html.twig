@@ -1,61 +1,61 @@
-{% extends 'base.html.twig' %}
+{% extends 'application/components/app_layout.html.twig' %}
 
 {% block title %}Car index{% endblock %}
 
-{% block body %}
-    <a href="{{ path('app_index') }}">back</a>
-    <h1>Car index</h1>
+{% block content %}
+    <h2 class="mb-4 text-3xl font-extrabold tracking-tight leading-none text-gray-900 md:text-4xl dark:text-white">Cars</h2>
+    <a href="{{ path('app_index') }}">
+        <button type="button" class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">
+            <svg aria-hidden="true" class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            back
+        </button>
+    </a>
 
-    <a href="{{ path('app_car_fuel_index') }}">fuels</a>
+    <a href="{{ path('app_car_fuel_index') }}">
+        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
+          <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+              fuels
+          </span>
+        </button>
+    </a>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>HorsePower</th>
-                <th>LicensePlate</th>
-                <th>Year</th>
-                <th>Km</th>
-                <th>Image</th>
-                <th>Fuel</th>
-                <th>AverageConsumption</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <a href="{{ path('app_car_new') }}">
+        <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+            Add new
+        </button>
+    </a>
+
+    <div class="p-4 flex flex-wrap space-x-4">
         {% for car in cars %}
-            <tr>
-                <td>{{ car.id }}</td>
-                <td>{{ car.brand }}</td>
-                <td>{{ car.model }}</td>
-                <td>{{ car.horsePower }}</td>
-                <td>{{ car.licensePlate }}</td>
-                <td>{{ car.year }}</td>
-                <td>{{ car.km }}</td>
-                <td>
-                    <img src="public/uploads/cars/{{ car.image }}" alt="">
-                </td>
-                <td>
-                    {% for fuel in car.fuelType %}
-                        {{ fuel.name }}<br/>
-                    {% endfor %}
-                </td>
-                <td>{{ car.averageConsumption }}</td>
-                <td>
-                    <a href="{{ path('app_car_show', {'id': car.id}) }}">show</a>
-                    <a href="{{ path('app_car_edit', {'id': car.id}) }}">edit</a>
-                    <a href="{{ path('app_car_edit_tires', {'id': car.id}) }}">tires</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="10">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{#     border-teal-500 text-green-800       border-amber-600 text-red-800 #}
+            <div class="max-w-sm bg-white border-4 border-teal-500/50 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+                <span class="bg-teal-500/50 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-red-200 dark:text-red-900">parking</span>
+                <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="mt-2">
+                    <img class="rounded-t-lg" src="{% if car.image is not null %} public/uploads/cars/{{ car.image }} {% else %} {% endif %}" alt="" />
+                </a>
+                <div class="p-5">
+                    <a href="{{ path('app_car_edit', {'id': car.id}) }}">
+                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ car.licensePlate }} {{ car.brand }} {{ car.model }}</h5>
+                    </a>
 
-    <a href="{{ path('app_car_new') }}">Create new</a>
+                    <span class="bg-gray-100 text-gray-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{ car.year }}</span>
+                    <span class="bg-gray-100 text-gray-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{ car.km }} km</span>
+                    <span class="bg-gray-100 text-gray-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">
+                        {% for fuel in car.fuelType %}
+                            {{ fuel.name }}
+                        {% endfor %}
+                    </span>
+                </div>
+                <div class="p-5">
+                    <a href="{{ path('app_car_edit', {'id': car.id}) }}">
+                        <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Edit</button>
+                    </a>
+                    <a href="{{ path('app_car_edit_tires', {'id': car.id}) }}">
+                        <button type="button" class="py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Tires</button>
+                    </a>
+                </div>
+            </div>
+        {% else %}
+        {% endfor %}
+    </div>
 {% endblock %}
