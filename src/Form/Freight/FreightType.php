@@ -32,6 +32,7 @@ class FreightType extends AbstractType
                 'multiple' => false,
                 'required' => true
             ])
+            ->add('distance')
             ->add('driver', EntityType::class, [
                 'label' => 'driver',
                 'class' => Driver::class,

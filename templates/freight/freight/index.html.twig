@@ -13,6 +13,7 @@
                 <th>Id</th>
                 <th>StartDate</th>
                 <th>DestinationDate</th>
+                <th>Distance</th>
                 <th>Status</th>
                 <th>actions</th>
             </tr>
@@ -23,10 +24,11 @@
                 <td>{{ freight.id }}</td>
                 <td>{{ freight.startDate ? freight.startDate|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ freight.destinationDate ? freight.destinationDate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ freight.distance }}</td>
                 <td>{{ freight.status }}</td>
                 <td>
-                    <a href="{{ path('app_freight_freight_show', {'id': freight.id}) }}">show</a>
-                    <a href="{{ path('app_freight_freight_edit', {'id': freight.id}) }}">edit</a>
+                    <a href="{{ path('app_freight_show', {'id': freight.id}) }}">show</a>
+                    <a href="{{ path('app_freight_edit', {'id': freight.id}) }}">edit</a>
                 </td>
             </tr>
         {% else %}
@@ -37,5 +39,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_freight_freight_new') }}">Create new</a>
+    <a href="{{ path('app_freight_new') }}">Create new</a>
 {% endblock %}

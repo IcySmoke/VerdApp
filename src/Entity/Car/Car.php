@@ -2,6 +2,7 @@
 
 namespace App\Entity\Car;
 
+use App\Entity\Driver;
 use App\Entity\Freight\Freight;
 use App\Repository\Car\CarRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -48,6 +49,9 @@ class Car
 
     #[ORM\OneToMany(mappedBy: 'car', targetEntity: Tire::class)]
     private Collection $tires;
+
+    #[ORM\OneToOne(inversedBy: 'currentCar', cascade: ['persist', 'remove'])]
+    private ?Driver $currentDriver = null;
 
     public function __construct()
     {
@@ -237,6 +241,18 @@ class Car
                 $tire->setCar(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCurrentDriver(): ?Driver
+    {
+        return $this->currentDriver;
+    }
+
+    public function setCurrentDriver(?Driver $currentDriver): self
+    {
+        $this->currentDriver = $currentDriver;
 
         return $this;
     }

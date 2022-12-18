@@ -3,6 +3,7 @@
 namespace App\Controller\Car;
 
 use App\Entity\Car\Car;
+use App\Entity\Driver;
 use App\Form\Car\CarType;
 use App\Repository\Car\CarRepository;
 use App\Service\FileUploader;
@@ -15,6 +16,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class CarController extends AbstractController
 {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager
+    ) {}
     #[Route('/car', name: 'app_car_index', methods: ['GET'])]
     public function index(CarRepository $carRepository): Response
     {
@@ -106,5 +110,32 @@ class CarController extends AbstractController
         }
 
         return $this->redirectToRoute('app_car_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/car/manage/{car}/{driver}/{action}', name: 'app_car_manage', methods: ['POST'])]
+    public function carManageApi(Request $request, Car $car, Driver $driver): Response
+    {
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json');
+
+        $action = $request->get('action');
+
+        if ($action == 'use') {
+            $car->setCurrentDriver($driver);
+        }
+
+        if ($action == 'stop_use') {
+            $car->setCurrentDriver(null);
+        }
+
+        $this->entityManager->persist($car);
+        $this->entityManager->flush();
+
+        $response->setContent(json_encode([
+            'car' => $car->getId(),
+            'driver' => $driver->getId(),
+            'method' => $request->get('action')
+        ]));
+        return $response;
     }
 }

@@ -29,7 +29,12 @@
         {% for car in cars %}
 {#     border-teal-500 text-green-800       border-amber-600 text-red-800 #}
             <div class="max-w-sm bg-white border-4 border-teal-500/50 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
-                <span class="bg-teal-500/50 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-red-200 dark:text-red-900">parking</span>
+                {% if car.currentDriver is not null %}
+                    <span class="bg-teal-500/50 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-red-200 dark:text-red-900">in use</span>
+                {% else %}
+                    <span class="bg-teal-500/50 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-red-200 dark:text-red-900">parking</span>
+                {% endif %}
+
                 <a href="{{ path('app_car_edit', {'id': car.id}) }}" class="mt-2">
                     <img class="rounded-t-lg" src="{% if car.image is not null %} public/uploads/cars/{{ car.image }} {% else %} {% endif %}" alt="" />
                 </a>
@@ -46,6 +51,18 @@
                         {% endfor %}
                     </span>
                 </div>
+                {% if app.user.driver is defined %}
+                    <div class="p-5">
+                        <button type="button" onclick="carManage('{{ path('app_car_manage', {'car': car.id, 'driver': app.user.driver.id, 'action': 'use'}) }}')" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 {% if app.user.driver.currentCar is null and car.currentDriver is null %} bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 {% else %} bg-blue-400 cursor-not-allowed {% endif %}" {% if app.user.driver.currentCar is not null %} disabled {% endif %}>
+                            use
+                        </button>
+                        {% if app.user.driver.currentCar == car %}
+                            <button type="button" onclick="carManage('{{ path('app_car_manage', {'car': car.id, 'driver': app.user.driver.id, 'action': 'stop_use'}) }}')" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                                stop using
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
                 <div class="p-5">
                     <a href="{{ path('app_car_edit', {'id': car.id}) }}">
                         <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Edit</button>
@@ -59,3 +76,23 @@
         {% endfor %}
     </div>
 {% endblock %}
+
+{% block javascripts %}
+    <script>
+        function carManage(url) {
+            var xhr = new XMLHttpRequest();
+            console.log(url);
+
+            xhr.open("POST", url);
+
+            xhr.onload = function() {
+                var response = xhr.response;
+                console.log(response);
+                location.reload();
+            }
+
+            xhr.send();
+        }
+    </script>
+{% endblock %}
+

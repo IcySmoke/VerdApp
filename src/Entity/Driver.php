@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Car\Car;
 use App\Entity\Freight\Freight;
 use App\Repository\DriverRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -35,6 +36,9 @@ class Driver
 
     #[ORM\OneToMany(mappedBy: 'driver', targetEntity: Freight::class)]
     private Collection $freights;
+
+    #[ORM\OneToOne(mappedBy: 'currentDriver', cascade: ['persist', 'remove'])]
+    private ?Car $currentCar = null;
 
     public function __construct()
     {
@@ -132,6 +136,28 @@ class Driver
                 $freight->setDriver(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCurrentCar(): ?Car
+    {
+        return $this->currentCar;
+    }
+
+    public function setCurrentCar(?Car $currentCar): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($currentCar === null && $this->currentCar !== null) {
+            $this->currentCar->setCurrentDriver(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($currentCar !== null && $currentCar->getCurrentDriver() !== $this) {
+            $currentCar->setCurrentDriver($this);
+        }
+
+        $this->currentCar = $currentCar;
 
         return $this;
     }
