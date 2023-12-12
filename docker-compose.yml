@@ -1,21 +1,146 @@
 version: '3'
 
 services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-14}-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+  # Traefik reverse proxy
+  traefik:
+    image: "traefik:v2.5"
+    container_name: ${APP_NAME}_traefik
+    ports:
+      - "80:80"
+#      - "5432:5432"
+      - "443:443"
+      - "8080:8080"
+      - "1025:1025"
+      - "8025:8025"
+      - "9000:9000"
     volumes:
-      - db-data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.rabbitmq_mgnt.address=:15672"
+      - "--entrypoints.rabbitmq.address=:5672"
+      - "--entrypoints.mailhog_smtp.address=:1025"
+      - "--entrypoints.mailhog_web.address=:8025"
+      - "--entrypoints.pgsql.address=:5432"
+      - "--entrypoints.redis.address=:6379"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=your_email@example.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
+    networks:
+      - verdapp
 
-volumes:
-###> doctrine/doctrine-bundle ###
-  db-data:
-###< doctrine/doctrine-bundle ###
+  api:
+    container_name: ${APP_NAME}_api
+    hostname: ${APP_NAME}_api
+    depends_on:
+      - database
+      - redis
+      - rabbitmq
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+      args:
+        - env=${APP_ENV}
+        - xdebug_enable=${XDEBUG_ENABLE}
+        - nginx_server_name=${NGINX_SERVER_NAME}
+    env_file:
+      - .env
+    environment:
+      PHP_IDE_CONFIG: "serverName=verdapp_api"
+    volumes:
+      - ./.idea:/var/www/html/.idea:rw
+      - ./bin:/var/www/html/bin:rw
+      - ./config:/var/www/html/config:rw
+      - ./public:/var/www/html/public:rw
+      - ./src:/var/www/html/src:rw
+      - ./templates:/var/www/html/templates:rw
+      - ./translations:/var/www/html/translations:rw
+      - ./var:/var/www/html/var:rw
+      - ./vendor:/var/www/html/vendor:rw
+      - ./.env:/var/www/html/.env:rw
+      - ./composer.json:/var/www/html/composer.json:rw
+#      - ./composer-local.json:/var/www/html/composer-local.json:rw
+#      - ./parameters.php:/var/www/html/parameters.php:rw
+      - ./docker/php/conf.d/app.ini:/usr/local/etc/php/conf.d/app.ini
+      - ./docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./docker/php/supervisor/supervisord.conf:/etc/supervisord.conf
+#      - ./docker/php/supervisor/messenger.ini:/etc/supervisor/conf.d/messenger.ini
+#      - ./docker/php/supervisor/supercronic.ini:/etc/supervisor/conf.d/supercronic.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - verdapp
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}_api.rule=Host(`${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
+      - "traefik.http.routers.${APP_NAME}_api.entrypoints=web"
+      - "traefik.http.routers.${APP_NAME}_api.service=${APP_NAME}_api"
+      - "traefik.http.services.${APP_NAME}_api.loadbalancer.server.port=80"
+
+  # PostgreSQL Database
+  database:
+    image: postgres:latest
+    container_name: ${APP_NAME}_database
+    environment:
+      POSTGRES_DB: ${APP_NAME}_db
+      POSTGRES_USER: ${APP_NAME}_user
+      POSTGRES_PASSWORD: secret
+    networks:
+      - verdapp
+    ports:
+      - "5432:5432"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.${APP_NAME}_database.rule=HostSNI(`database.${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
+      - "traefik.tcp.routers.${APP_NAME}_database.entryPoints=pgsql"
+
+  # RabbitMQ
+  rabbitmq:
+    image: "rabbitmq:3.8-management"
+    container_name: ${APP_NAME}_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${APP_NAME}_rabbitmq_user
+      RABBITMQ_DEFAULT_PASS: rabbitmq_pass
+    networks:
+      - verdapp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.${APP_NAME}_rabbitmq.rule=HostSNI(`rabbitmq.${APP_MAIN_HOST_TLD}`)"
+      - "traefik.tcp.routers.${APP_NAME}_rabbitmq.entryPoints=rabbitmq"
+      - "traefik.http.routers.${APP_NAME}_rabbitmq.rule=Host(`${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
+      - "traefik.http.routers.${APP_NAME}_rabbitmq.entryPoints=rabbitmq_mgnt"
+      - "traefik.http.routers.${APP_NAME}_rabbitmq.service=${APP_NAME}_rabbitmq"
+      - "traefik.http.services.${APP_NAME}_rabbitmq.loadbalancer.server.port=15672"
+
+  # Redis
+  redis:
+    image: redis:latest
+    container_name: ${APP_NAME}_redis
+    networks:
+      - verdapp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.${APP_NAME}_redis.rule=HostSNI(`redis.${APP_MAIN_HOST_TLD}`)"
+      - "traefik.tcp.routers.${APP_NAME}_redis.entryPoints=redis"
+
+  # Mailhog
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: ${APP_NAME}_mailhog
+    networks:
+      - verdapp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP_NAME}_mailhog.rule=Host(`mailhog.${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
+      - "traefik.http.routers.${APP_NAME}_mailhog.entryPoints=mailhog_web"
+      - "traefik.http.services.${APP_NAME}_mailhog.loadbalancer.server.port=8025"
+      - "traefik.tcp.routers.${APP_NAME}_mailhog.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.${APP_NAME}_mailhog.entryPoints=mailhog_smtp"
+networks:
+  verdapp:
+    external: true
