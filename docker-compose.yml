@@ -7,10 +7,12 @@ services:
     container_name: ${APP_NAME}_traefik
     ports:
       - "80:80"
+#      - "5432:5432"
       - "443:443"
       - "8080:8080"
       - "1025:1025"
       - "8025:8025"
+      - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command:
@@ -20,8 +22,11 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.rabbitmq_mgnt.address=:15672"
+      - "--entrypoints.rabbitmq.address=:5672"
       - "--entrypoints.mailhog_smtp.address=:1025"
       - "--entrypoints.mailhog_web.address=:8025"
+      - "--entrypoints.pgsql.address=:5432"
+      - "--entrypoints.redis.address=:6379"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=your_email@example.com"
       - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
@@ -39,7 +44,7 @@ services:
       context: ./docker/php
       dockerfile: Dockerfile
       args:
-        - env=${ENV}
+        - env=${APP_ENV}
         - xdebug_enable=${XDEBUG_ENABLE}
         - nginx_server_name=${NGINX_SERVER_NAME}
     env_file:
@@ -52,22 +57,24 @@ services:
       - ./config:/var/www/html/config:rw
       - ./public:/var/www/html/public:rw
       - ./src:/var/www/html/src:rw
+      - ./templates:/var/www/html/templates:rw
       - ./translations:/var/www/html/translations:rw
       - ./var:/var/www/html/var:rw
       - ./vendor:/var/www/html/vendor:rw
       - ./.env:/var/www/html/.env:rw
       - ./composer.json:/var/www/html/composer.json:rw
-      - ./composer-local.json:/var/www/html/composer-local.json:rw
-      - ./parameters.php:/var/www/html/parameters.php:rw
+#      - ./composer-local.json:/var/www/html/composer-local.json:rw
+#      - ./parameters.php:/var/www/html/parameters.php:rw
       - ./docker/php/conf.d/app.ini:/usr/local/etc/php/conf.d/app.ini
       - ./docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./docker/php/supervisor/supervisord.conf:/etc/supervisord.conf
-      - ./docker/php/supervisor/messenger.ini:/etc/supervisor/conf.d/messenger.ini
-      - ./docker/php/supervisor/supercronic.ini:/etc/supervisor/conf.d/supercronic.ini
+#      - ./docker/php/supervisor/messenger.ini:/etc/supervisor/conf.d/messenger.ini
+#      - ./docker/php/supervisor/supercronic.ini:/etc/supervisor/conf.d/supercronic.ini
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - verdapp
+      - default
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}_api.rule=Host(`${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
@@ -85,9 +92,11 @@ services:
       POSTGRES_PASSWORD: secret
     networks:
       - verdapp
+    ports:
+      - "5432:5432"
     labels:
       - "traefik.enable=true"
-      - "traefik.tcp.routers.${APP_NAME}_database.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.${APP_NAME}_database.rule=HostSNI(`database.${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
       - "traefik.tcp.routers.${APP_NAME}_database.entryPoints=pgsql"
 
   # RabbitMQ
@@ -101,7 +110,7 @@ services:
       - verdapp
     labels:
       - "traefik.enable=true"
-      - "traefik.tcp.routers.${APP_NAME}_rabbitmq.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.${APP_NAME}_rabbitmq.rule=HostSNI(`rabbitmq.${APP_MAIN_HOST_TLD}`)"
       - "traefik.tcp.routers.${APP_NAME}_rabbitmq.entryPoints=rabbitmq"
       - "traefik.http.routers.${APP_NAME}_rabbitmq.rule=Host(`${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
       - "traefik.http.routers.${APP_NAME}_rabbitmq.entryPoints=rabbitmq_mgnt"
@@ -116,7 +125,7 @@ services:
       - verdapp
     labels:
       - "traefik.enable=true"
-      - "traefik.tcp.routers.${APP_NAME}_redis.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.${APP_NAME}_redis.rule=HostSNI(`redis.${APP_MAIN_HOST_TLD}`)"
       - "traefik.tcp.routers.${APP_NAME}_redis.entryPoints=redis"
 
   # Mailhog

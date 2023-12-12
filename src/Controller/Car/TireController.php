@@ -21,6 +21,7 @@ class TireController extends AbstractController
         $tires = $tireRepository->createQueryBuilder('t')
             ->addSelect('t.brand', 't.type', 't.width', 't.aspectRatio', 't.rim', 't.loadIndex', 't.speedRating', 't.dot', 'count(t.id) as count', 't.groupId')
             ->addGroupBy('t.groupId')
+            ->addGroupBy('t.id')
             ->getQuery()->getArrayResult();
 
         return $this->render('car/tire/index.html.twig', [
