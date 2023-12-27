@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev
 
 # Install PHP extensions
-RUN apt-get install -y php8.2-fpm php8.2-dom php8.2-gd php8.2-xml php8.2-pdo php8.2-pgsql php8.2-pdo-pgsql
+RUN apt-get install -y php8.2-fpm php8.2-dom php8.2-gd php8.2-xml php8.2-pdo php8.2-pgsql php8.2-pdo-pgsql php8.2-curl
 
 # Install Composer globally
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
