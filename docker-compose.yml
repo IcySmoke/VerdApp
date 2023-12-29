@@ -27,9 +27,6 @@ services:
       - "--entrypoints.mailhog_web.address=:8025"
       - "--entrypoints.pgsql.address=:5432"
       - "--entrypoints.redis.address=:6379"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=your_email@example.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
     networks:
       - verdapp
 
@@ -52,17 +49,18 @@ services:
     environment:
       PHP_IDE_CONFIG: "serverName=verdapp_api"
     volumes:
-      - ./.idea:/var/www/html/.idea:rw
-      - ./bin:/var/www/html/bin:rw
-      - ./config:/var/www/html/config:rw
-      - ./public:/var/www/html/public:rw
-      - ./src:/var/www/html/src:rw
-      - ./templates:/var/www/html/templates:rw
-      - ./translations:/var/www/html/translations:rw
-      - ./var:/var/www/html/var:rw
-      - ./vendor:/var/www/html/vendor:rw
-      - ./.env:/var/www/html/.env:rw
-      - ./composer.json:/var/www/html/composer.json:rw
+      - ./.idea:/var/www/html/verdapp/.idea:rw
+      - ./bin:/var/www/html/verdapp/bin:rw
+      - ./certs:/var/www/html/verdapp/certs:rw
+      - ./config:/var/www/html/verdapp/config:rw
+      - ./public:/var/www/html/verdapp/public:rw
+      - ./src:/var/www/html/verdapp/src:rw
+      - ./templates:/var/www/html/verdapp/templates:rw
+      - ./translations:/var/www/html/verdapp/translations:rw
+      - ./var:/var/www/html/verdapp/var:rw
+      - ./vendor:/var/www/html/verdapp/vendor:rw
+      - ./.env:/var/www/html/verdapp/.env:rw
+      - ./composer.json:/var/www/html/verdapp/composer.json:rw
 #      - ./composer-local.json:/var/www/html/composer-local.json:rw
 #      - ./parameters.php:/var/www/html/parameters.php:rw
       - ./docker/php/conf.d/app.ini:/usr/local/etc/php/conf.d/app.ini
@@ -79,6 +77,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${APP_NAME}_api.rule=Host(`${APP_NAME}.${APP_MAIN_HOST_TLD}`)"
       - "traefik.http.routers.${APP_NAME}_api.entrypoints=web"
+#      - "traefik.http.routers.${APP_NAME}_api.entrypoints=websecure"
       - "traefik.http.routers.${APP_NAME}_api.service=${APP_NAME}_api"
       - "traefik.http.services.${APP_NAME}_api.loadbalancer.server.port=80"
 
@@ -143,6 +142,7 @@ services:
       - "traefik.http.services.${APP_NAME}_mailhog.loadbalancer.server.port=8025"
       - "traefik.tcp.routers.${APP_NAME}_mailhog.rule=HostSNI(`*`)"
       - "traefik.tcp.routers.${APP_NAME}_mailhog.entryPoints=mailhog_smtp"
+
 networks:
   verdapp:
     external: true

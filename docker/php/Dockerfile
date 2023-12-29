@@ -21,10 +21,11 @@ COPY ./nginx/http.d/default.nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./pool.d/www.conf /etc/php/8.2/fpm/pool.d/www.conf
 
 # Set the working directory to /var/www/html
-WORKDIR /var/www/html/
+WORKDIR /var/www/html/verdapp/
 
 # Expose ports
 EXPOSE 80
+EXPOSE 443
 EXPOSE 9000
 
 # Start both PHP-FPM and Nginx
